@@ -173,154 +173,98 @@ char *get_ip_str(const struct sockaddr *sa, char *s, size_t maxlen) {
     return s;
 }
 
+#include <string.h>
+#include <stdlib.h>
+#include <net/if.h>  // for the IFF_* flags
+
 char *parse_if_flags(int flags) {
-    int first = 1;  // No comma on the first flag
+    int first = 1;
     char *build_string = malloc(200);
-    if(flags & IFF_UP) {
-        first = 0;
-        strcat(build_string, "UP");
+    
+    if (build_string == NULL) {
+        return NULL; // Allocation failed
     }
     
-    if(flags & IFF_BROADCAST) {
-        if(!first) {
-            strcat(build_string,",");
+    build_string[0] = '\0'; // Initialize the string
+    
+    struct {
+        int flag;
+        const char *str;
+    } flag_str_map[] = {
+        {IFF_UP, "UP"},
+        {IFF_BROADCAST, "BROADCAST"},
+        {IFF_DEBUG, "DEBUG"},
+        {IFF_LOOPBACK, "LOOPBACK"},
+        {IFF_POINTOPOINT, "POINTOPOINT"},
+        {IFF_NOTRAILERS, "NOTRAILERS"},
+        {IFF_RUNNING, "RUNNING"},
+        {IFF_NOARP, "NOARP"},
+        {IFF_PROMISC, "PROMISC"},
+        {IFF_ALLMULTI, "ALLMULTI"},
+        {IFF_MULTICAST, "MULTICAST"},
+    };
+
+    for (int i = 0; i < sizeof(flag_str_map)/sizeof(flag_str_map[0]); ++i) {
+        if (flags & flag_str_map[i].flag) {
+            if (!first) {
+                strcat(build_string, ",");
+            }
+            strcat(build_string, flag_str_map[i].str);
+            first = 0;
         }
-        first = 0;
-        strcat(build_string, "BROADCAST");
     }
-    
-    if(flags & IFF_DEBUG) {
-        if(!first) {
-            strcat(build_string,",");
-        }
-        first = 0;
-        strcat(build_string, "DEBUG");
-    }
-    
-    if(flags & IFF_LOOPBACK) {
-        if(!first) {
-            strcat(build_string,",");
-        }
-        first = 0;
-        strcat(build_string, "LOOPBACK");
-    }
-    
-    if(flags & IFF_POINTOPOINT) {
-        if(!first) {
-            strcat(build_string,",");
-        }
-        first = 0;
-        strcat(build_string, "POINTOPOINT");
-    }
-    
-    if(flags & IFF_NOTRAILERS) {
-        if(!first) {
-            strcat(build_string,",");
-        }
-        first = 0;
-        strcat(build_string, "NOTRAILERS");
-    }
-    
-    if(flags & IFF_RUNNING) {
-        if(!first) {
-            strcat(build_string,",");
-        }
-        first = 0;
-        strcat(build_string, "RUNNING");
-    }
-    
-    if(flags & IFF_NOARP) {
-        if(!first) {
-            strcat(build_string,",");
-        }
-        first = 0;
-        strcat(build_string, "NOARP");
-    }
-    
-    if(flags & IFF_PROMISC) {
-        if(!first) {
-            strcat(build_string,",");
-        }
-        first = 0;
-        strcat(build_string, "PROMISC");
-    }
-    
-    if(flags & IFF_ALLMULTI) {
-        if(!first) {
-            strcat(build_string,",");
-        }
-        first = 0;
-        strcat(build_string, "ALLMULTI");
-    }
-    
-    if(flags & IFF_MULTICAST) {
-        if(!first) {
-            strcat(build_string,",");
-        }
-        first = 0;
-        strcat(build_string, "MULTICAST");
-    }
-    
+
     return build_string;
-               
 }
 
 static int proc_ish_show_ips(struct proc_entry *UNUSED(entry), struct proc_data *buf) {
-    //proc_printf(buf, "Iface        IP                                         Family    Flags   Broadcast    Mask        \n");
-    proc_printf(buf, "Iface        IP                                         Broedcast/Multicast                         Family    Flags\n");
+    proc_printf(buf, "Iface        IP                                         Broadcast/Multicast    Family    Flags\n");
+
     struct ifaddrs *addrs;
-    bool success = (getifaddrs(&addrs) == 0);
-    if (success) {
-        const struct ifaddrs *cursor = addrs;
-        char * type = malloc(9);
-        while (cursor != NULL) {
-            if ((cursor->ifa_addr->sa_family == AF_INET) || (cursor->ifa_addr->sa_family == AF_INET6)) {
-                char * int_ip = malloc(100);
-                char * int_dstaddr = malloc(100);
-                if(cursor->ifa_addr->sa_family == AF_INET) {
-                    strncpy(type, "IF_INET", 9);
-                } else {
-                    strncpy(type, "IF_INET6", 9);
-                }
-                //cursor->ifa_addr->sa_family = AF_INET;
-                get_ip_str(cursor->ifa_addr, int_ip, 100);
-                if(cursor->ifa_dstaddr != NULL) {
-                    if(cursor->ifa_dstaddr->sa_family == AF_INET) {
-                        strncpy(type, "IF_INET", 9);
-                    } else {
-                        strncpy(type, "IF_INET6", 9);
-                        cursor->ifa_dstaddr->sa_family = AF_INET6;
-                    }
-                    get_ip_str(cursor->ifa_dstaddr, int_dstaddr, 100);
-                } else {
-                    strcpy(int_dstaddr," ");
-                }
-                char * int_flags = malloc(250);
-                int_flags = parse_if_flags(cursor->ifa_flags);
-                /*proc_printf(buf, "%-10.10s   %-40s   %-8s  %-x     %-40s     %8.8d\n",
-                            cursor->ifa_name,
-                            int_ip,
-                            type,
-                            cursor->ifa_flags,
-                            int_dstaddr,
-                            cursor->ifa_netmask
-                            ); */
-                proc_printf(buf, "%-10.10s   %-40s   %-40s    %-8s  %-60s\n",
-                            cursor->ifa_name,
-                            int_ip,
-                            int_dstaddr,
-                            type,
-                            int_flags
-                );
-                free(int_ip);
-                free(int_dstaddr);
-                free(int_flags);
-            }
-            cursor = cursor->ifa_next;
-        }
-        freeifaddrs(addrs);
-        free(type);
+    int ret = getifaddrs(&addrs);
+    if (ret != 0) {
+        return -1; // Or another form of error reporting
     }
+
+    struct ifaddrs *cursor = addrs;
+    char type[9];
+    
+    while (cursor != NULL) {
+        if ((cursor->ifa_addr->sa_family == AF_INET) || (cursor->ifa_addr->sa_family == AF_INET6)) {
+            char int_ip[100];
+            char int_dstaddr[100];
+
+            if (cursor->ifa_addr->sa_family == AF_INET) {
+                strncpy(type, "IF_INET", sizeof(type));
+            } else {
+                strncpy(type, "IF_INET6", sizeof(type));
+            }
+            type[sizeof(type) - 1] = '\0';
+            
+            get_ip_str(cursor->ifa_addr, int_ip, sizeof(int_ip));
+            
+            if (cursor->ifa_dstaddr != NULL) {
+                get_ip_str(cursor->ifa_dstaddr, int_dstaddr, sizeof(int_dstaddr));
+            } else {
+                strcpy(int_dstaddr, " ");
+            }
+
+            char int_flags[250];
+            strncpy(int_flags, parse_if_flags(cursor->ifa_flags), sizeof(int_flags));
+            int_flags[sizeof(int_flags) - 1] = '\0';
+            
+            proc_printf(buf, "%-10.10s   %-40s   %-40s   %-8s  %-60s\n",
+                        cursor->ifa_name,
+                        int_ip,
+                        int_dstaddr,
+                        type,
+                        int_flags
+            );
+        }
+        cursor = cursor->ifa_next;
+    }
+
+    freeifaddrs(addrs);
     return 0;
 }
 
