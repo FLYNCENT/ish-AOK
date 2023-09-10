@@ -329,6 +329,14 @@ static int proc_ish_show_version(struct proc_entry *UNUSED(entry), struct proc_d
     return 0;
 }
 
+extern char* printBatteryStatus(void);
+
+
+static int proc_ish_show_battery(struct proc_entry *UNUSED(entry), struct proc_data *buf) {
+    proc_printf(buf, "%s", printBatteryStatus());
+    return 0;
+}
+
 struct proc_children proc_ish_children = PROC_CHILDREN({
     {"colors", .show = proc_ish_show_colors},
     {".defaults", S_IFDIR, .readdir = proc_ish_underlying_defaults_readdir},
@@ -336,4 +344,5 @@ struct proc_children proc_ish_children = PROC_CHILDREN({
     {"documents", .show = proc_ish_show_documents},
     {"ips", .show = proc_ish_show_ips},
     {"version", .show = proc_ish_show_version},
+    {"BAT0", .show = proc_ish_show_battery},
 });
