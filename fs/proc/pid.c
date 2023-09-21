@@ -339,7 +339,8 @@ static int proc_pid_cwd_readlink(struct proc_entry *entry, char *buf) {
     struct task *task = proc_get_task(entry);
     if (task == NULL)
         return _ESRCH;
-    lock(&task->fs->lock);
+    complex_lockt(&task->fs->lock, 0, __FILE__, __LINE__);
+
     int err = generic_getpath(task->fs->pwd, buf);
     unlock(&task->fs->lock);
     proc_put_task(task);
