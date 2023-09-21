@@ -301,7 +301,6 @@ void NetworkReachabilityCallback(SCNetworkReachabilityRef target, SCNetworkReach
         });
     }];
     
-<<<<<<< HEAD
     [UserPreferences.shared observe:@[@"shouldEnableMulticore"] options:NSKeyValueObservingOptionInitial
                               owner:self usingBlock:^(typeof(self) self) {
         dispatch_async(dispatch_get_main_queue(), ^{
@@ -325,16 +324,12 @@ void NetworkReachabilityCallback(SCNetworkReachabilityRef target, SCNetworkReach
   //      });
   //  }];
     
-    struct sockaddr_in6 address = {
-        .sin6_len = sizeof(address),
-        .sin6_family = AF_INET6,
-=======
-    // This code is IPv4 and IPv6 aware: see https://developer.apple.com/library/archive/samplecode/Reachability/Listings/ReadMe_md.html.
+        // This code is IPv4 and IPv6 aware: see https://developer.apple.com/library/archive/samplecode/Reachability/Listings/ReadMe_md.html.
     struct sockaddr_in address = {
         .sin_len = sizeof(address),
         .sin_family = AF_INET,
->>>>>>> ad07a7a5 (Use AF_INET for network reachability callback)
     };
+
     self.reachability = SCNetworkReachabilityCreateWithAddress(kCFAllocatorDefault, (struct sockaddr *) &address);
     SCNetworkReachabilityContext context = {
         .info = (__bridge void *) self,
