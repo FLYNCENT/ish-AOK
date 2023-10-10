@@ -636,7 +636,7 @@ static inline void read_unlock_and_destroy(wrlock_t *lock) {
 
 extern __thread sigjmp_buf unwind_buf;
 extern __thread bool should_unwind;
-static inline int sigunwind_start() {
+static inline int sigunwind_start(void) {
     if (sigsetjmp(unwind_buf, 1)) {
         should_unwind = false;
         return 1;
@@ -646,7 +646,7 @@ static inline int sigunwind_start() {
     }
 }
 
-static inline void sigunwind_end() {
+static inline void sigunwind_end(void) {
     should_unwind = false;
 }
 
