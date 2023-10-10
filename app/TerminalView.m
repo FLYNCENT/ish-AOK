@@ -525,13 +525,13 @@ static const char *metaKeys = "abcdefghijklmnopqrstuvwxyz0123456789-=[]\\;',./";
     [self addKeys:controlKeys withModifiers:UIKeyModifierControl];
 
     if (@available(iOS 13.4, *)) {
-        [self addFunctionKey:UIKeyInputUpArrow withName:@"Up" withNormalEscapeSequence:@"\x1b[A" withShiftEscapeSequence:@"\x1b[1;2A" withControlEscapeSequence:@"\x1b[1;5A"];
-        [self addFunctionKey:UIKeyInputDownArrow withName:@"Down" withNormalEscapeSequence:@"\x1b[B" withShiftEscapeSequence:@"\x1b[1;2B" withControlEscapeSequence:@"\x1b[1;5B"];
-        [self addFunctionKey:UIKeyInputRightArrow withName:@"Right" withNormalEscapeSequence:@"\x1b[C" withShiftEscapeSequence:@"\x1b[1;2C" withControlEscapeSequence:@"\x1b[1;5C"];
-        [self addFunctionKey:UIKeyInputLeftArrow withName:@"Left" withNormalEscapeSequence:@"\x1b[D" withShiftEscapeSequence:@"\x1b[1;2D" withControlEscapeSequence:@"\x1b[1;5D"];
-        [self addFunctionKey:@"\t" withName:@"Tab" withNormalEscapeSequence:@"\t" withShiftEscapeSequence:@"\x1b[Z" withControlEscapeSequence:NULL];
+        [self addFunctionKey:UIKeyInputUpArrow withName:@"Up" withNormalEscapeSequence:@"\x1b[A" withShiftEscapeSequence:@"\x1b[1;2A" withControlEscapeSequence:@"\x1b[1;5A" withAltEscapeSequence:@"\x1b[1;3A"];
+        [self addFunctionKey:UIKeyInputDownArrow withName:@"Down" withNormalEscapeSequence:@"\x1b[B" withShiftEscapeSequence:@"\x1b[1;2B" withControlEscapeSequence:@"\x1b[1;5B" withAltEscapeSequence:@"\x1b[1;3B"];
+        [self addFunctionKey:UIKeyInputRightArrow withName:@"Right" withNormalEscapeSequence:@"\x1b[C" withShiftEscapeSequence:@"\x1b[1;2C" withControlEscapeSequence:@"\x1b[1;5C" withAltEscapeSequence:@"\x1b[1;3C"];
+        [self addFunctionKey:UIKeyInputLeftArrow withName:@"Left" withNormalEscapeSequence:@"\x1b[D" withShiftEscapeSequence:@"\x1b[1;2D" withControlEscapeSequence:@"\x1b[1;5D" withAltEscapeSequence:@"\x1b[1;3D"];
+        [self addFunctionKey:@"\t" withName:@"Tab" withNormalEscapeSequence:@"\t" withShiftEscapeSequence:@"\x1b[Z" withControlEscapeSequence:NULL withAltEscapeSequence:@"\x1b\t"];
 
-        [self addFunctionKey:UIKeyInputEscape withName:@"Esc" withNormalEscapeSequence:@"\x1b" withShiftEscapeSequence:NULL withControlEscapeSequence:NULL];
+        [self addFunctionKey:UIKeyInputEscape withName:@"Esc" withNormalEscapeSequence:@"\x1b" withShiftEscapeSequence:NULL withControlEscapeSequence:NULL withAltEscapeSequence:NULL];
         // Navigation keys
 
         /*
@@ -542,25 +542,25 @@ static const char *metaKeys = "abcdefghijklmnopqrstuvwxyz0123456789-=[]\\;',./";
         //if (@available(iOS 15.0, *)) {
         //    [self addFunctionKey:UIKeyInputDelete withName:@"Del" withNormalEscapeSequence:@"\x1b[3~" withShiftEscapeSequence:@"\x1b[3;2~" withControlEscapeSequence:@"\x1b[3;5~"];
        // } // This breaks the del key.  -mke
-        [self addFunctionKey:UIKeyInputPageUp withName:@"PgUp" withNormalEscapeSequence:@"\x1b[5~" withShiftEscapeSequence:@"\x1b[5;2~" withControlEscapeSequence:@"\x1b[5;5~"];
-        [self addFunctionKey:UIKeyInputPageDown withName:@"PgDn" withNormalEscapeSequence:@"\x1b[6~" withShiftEscapeSequence:@"\x1b[6;2~" withControlEscapeSequence:@"\x1b[6;5~"];
-        [self addFunctionKey:UIKeyInputHome withName:@"Home" withNormalEscapeSequence:@"\x1bOH" withShiftEscapeSequence:@"\x1b[1;2H" withControlEscapeSequence:@"\x1b[1;5H"];
-        [self addFunctionKey:UIKeyInputEnd withName:@"End" withNormalEscapeSequence:@"\x1bOF" withShiftEscapeSequence:@"\x1b[1;2F" withControlEscapeSequence:@"\x1b[1;5F"];
+        [self addFunctionKey:UIKeyInputPageUp withName:@"PgUp" withNormalEscapeSequence:@"\x1b[5~" withShiftEscapeSequence:@"\x1b[5;2~" withControlEscapeSequence:@"\x1b[5;5~" withAltEscapeSequence:@"\x1b[5;3~"];
+        [self addFunctionKey:UIKeyInputPageDown withName:@"PgDn" withNormalEscapeSequence:@"\x1b[6~" withShiftEscapeSequence:@"\x1b[6;2~" withControlEscapeSequence:@"\x1b[6;5~" withAltEscapeSequence:@"\x1b[6;3~"];
+        [self addFunctionKey:UIKeyInputHome withName:@"Home" withNormalEscapeSequence:@"\x1bOH" withShiftEscapeSequence:@"\x1b[1;2H" withControlEscapeSequence:@"\x1b[1;5H" withAltEscapeSequence:@"\x1b[1;3H"];
+        [self addFunctionKey:UIKeyInputEnd withName:@"End" withNormalEscapeSequence:@"\x1bOF" withShiftEscapeSequence:@"\x1b[1;2F" withControlEscapeSequence:@"\x1b[1;5F" withAltEscapeSequence:@"\x1b[1;3F"];
         // Function keys
-        [self addFunctionKey:UIKeyInputF1 withName:@"F1" withNormalEscapeSequence:@"\x1bOP" withShiftEscapeSequence:@"\x1b[1;2P" withControlEscapeSequence:@"\x1b[1;5P"];
-        [self addFunctionKey:UIKeyInputF2 withName:@"F2" withNormalEscapeSequence:@"\x1bOQ" withShiftEscapeSequence:@"\x1b[1;2Q" withControlEscapeSequence:@"\x1b[1;5Q"];
-        [self addFunctionKey:UIKeyInputF3 withName:@"F3" withNormalEscapeSequence:@"\x1bOR" withShiftEscapeSequence:@"\x1b[1;2R" withControlEscapeSequence:@"\x1b[1;5R"];
-        [self addFunctionKey:UIKeyInputF4 withName:@"F4" withNormalEscapeSequence:@"\x1bOS" withShiftEscapeSequence:@"\x1b[1;2S" withControlEscapeSequence:@"\x1b[1;5S"];
-        [self addFunctionKey:UIKeyInputF5 withName:@"F5" withNormalEscapeSequence:@"\x1b[15~" withShiftEscapeSequence:@"\x1b[15;2~" withControlEscapeSequence:@"\x1b[15;5~"];
+        [self addFunctionKey:UIKeyInputF1 withName:@"F1" withNormalEscapeSequence:@"\x1bOP" withShiftEscapeSequence:@"\x1b[1;2P" withControlEscapeSequence:@"\x1b[1;5P" withAltEscapeSequence:@"\x1bO3P"];
+        [self addFunctionKey:UIKeyInputF2 withName:@"F2" withNormalEscapeSequence:@"\x1bOQ" withShiftEscapeSequence:@"\x1b[1;2Q" withControlEscapeSequence:@"\x1b[1;5Q" withAltEscapeSequence:@"\x1bO3Q"];
+        [self addFunctionKey:UIKeyInputF3 withName:@"F3" withNormalEscapeSequence:@"\x1bOR" withShiftEscapeSequence:@"\x1b[1;2R" withControlEscapeSequence:@"\x1b[1;5R" withAltEscapeSequence:@"\x1bO3R"];
+        [self addFunctionKey:UIKeyInputF4 withName:@"F4" withNormalEscapeSequence:@"\x1bOS" withShiftEscapeSequence:@"\x1b[1;2S" withControlEscapeSequence:@"\x1b[1;5S" withAltEscapeSequence:@"\x1bO3S"];
+        [self addFunctionKey:UIKeyInputF5 withName:@"F5" withNormalEscapeSequence:@"\x1b[15~" withShiftEscapeSequence:@"\x1b[15;2~" withControlEscapeSequence:@"\x1b[15;5~" withAltEscapeSequence:@"\x1b[15;3~"];
         // Yes, @"\x1b[16~" is missing; it is meant to be
-        [self addFunctionKey:UIKeyInputF6 withName:@"F6" withNormalEscapeSequence:@"\x1b[17~" withShiftEscapeSequence:@"\x1b[17;2~" withControlEscapeSequence:@"\x1b[17;5~"];
-        [self addFunctionKey:UIKeyInputF7 withName:@"F7" withNormalEscapeSequence:@"\x1b[18~" withShiftEscapeSequence:@"\x1b[18;2~" withControlEscapeSequence:@"\x1b[18;5~"];
-        [self addFunctionKey:UIKeyInputF8 withName:@"F8" withNormalEscapeSequence:@"\x1b[19~" withShiftEscapeSequence:@"\x1b[19;2~" withControlEscapeSequence:@"\x1b[19;5~"];
-        [self addFunctionKey:UIKeyInputF9 withName:@"F9" withNormalEscapeSequence:@"\x1b[20~" withShiftEscapeSequence:@"\x1b[20;2~" withControlEscapeSequence:@"\x1b[20;5~"];
-        [self addFunctionKey:UIKeyInputF10 withName:@"F10" withNormalEscapeSequence:@"\x1b[21~" withShiftEscapeSequence:@"\x1b[21;2~" withControlEscapeSequence:@"\x1b[21;5~"];
+        [self addFunctionKey:UIKeyInputF6 withName:@"F6" withNormalEscapeSequence:@"\x1b[17~" withShiftEscapeSequence:@"\x1b[17;2~" withControlEscapeSequence:@"\x1b[17;5~" withAltEscapeSequence:@"\x1b[17;3~"];
+        [self addFunctionKey:UIKeyInputF7 withName:@"F7" withNormalEscapeSequence:@"\x1b[18~" withShiftEscapeSequence:@"\x1b[18;2~" withControlEscapeSequence:@"\x1b[18;5~" withAltEscapeSequence:@"\x1b[18;3~"];
+        [self addFunctionKey:UIKeyInputF8 withName:@"F8" withNormalEscapeSequence:@"\x1b[19~" withShiftEscapeSequence:@"\x1b[19;2~" withControlEscapeSequence:@"\x1b[19;5~" withAltEscapeSequence:@"\x1b[19;3~"];
+        [self addFunctionKey:UIKeyInputF9 withName:@"F9" withNormalEscapeSequence:@"\x1b[20~" withShiftEscapeSequence:@"\x1b[20;2~" withControlEscapeSequence:@"\x1b[20;5~" withAltEscapeSequence:@"\x1b[20;3~"];
+        [self addFunctionKey:UIKeyInputF10 withName:@"F10" withNormalEscapeSequence:@"\x1b[21~" withShiftEscapeSequence:@"\x1b[21;2~" withControlEscapeSequence:@"\x1b[21;5~" withAltEscapeSequence:@"\x1b[21;3~"];
         // Yes, @"\x1b[22~" is missing; it is meant to be
-        [self addFunctionKey:UIKeyInputF11 withName:@"F11" withNormalEscapeSequence:@"\x1b[23~" withShiftEscapeSequence:@"\x1b[23;2~" withControlEscapeSequence:@"\x1b[23;5~"];
-        [self addFunctionKey:UIKeyInputF12 withName:@"F12" withNormalEscapeSequence:@"\x1b[24~" withShiftEscapeSequence:@"\x1b[24;2~" withControlEscapeSequence:@"\x1b[24;5~"];
+        [self addFunctionKey:UIKeyInputF11 withName:@"F11" withNormalEscapeSequence:@"\x1b[23~" withShiftEscapeSequence:@"\x1b[23;2~" withControlEscapeSequence:@"\x1b[23;5~" withAltEscapeSequence:@"\x1b[23;3~"];
+        [self addFunctionKey:UIKeyInputF12 withName:@"F12" withNormalEscapeSequence:@"\x1b[24~" withShiftEscapeSequence:@"\x1b[24;2~" withControlEscapeSequence:@"\x1b[24;5~" withAltEscapeSequence:@"\x1b[24;3~"];
     } else {
         for (NSString *specialKey in @[UIKeyInputEscape, UIKeyInputUpArrow, UIKeyInputDownArrow,
                                    UIKeyInputLeftArrow, UIKeyInputRightArrow, @"\t"]) {
@@ -606,7 +606,7 @@ static const char *metaKeys = "abcdefghijklmnopqrstuvwxyz0123456789-=[]\\;',./";
     [_keyCommands addObject:command];
 }
 
-- (void)addFunctionKey:(NSString *)keyName withName:(NSString *)keyTitle withNormalEscapeSequence:(NSString *)normalEscapeSequence withShiftEscapeSequence:(NSString *)shiftEscapeSequence withControlEscapeSequence:(NSString *)controlEscapeSequence API_AVAILABLE(ios(13.4)) {
+- (void)addFunctionKey:(NSString *)keyName withName:(NSString *)keyTitle withNormalEscapeSequence:(NSString *)normalEscapeSequence withShiftEscapeSequence:(NSString *)shiftEscapeSequence withControlEscapeSequence:(NSString *)controlEscapeSequence withAltEscapeSequence:(NSString *)altEscapeSequence API_AVAILABLE(ios(13.4)) {
 
     UIKeyCommand *command;
 
@@ -623,6 +623,11 @@ static const char *metaKeys = "abcdefghijklmnopqrstuvwxyz0123456789-=[]\\;',./";
     [_keyCommands addObject:command];
 
     command = [UIKeyCommand commandWithTitle: @"" image: nil action:@selector(handleKeyCommand:) input: keyName modifierFlags:UIKeyModifierControl propertyList:controlEscapeSequence];
+    if (@available(iOS 15, *)) {
+        command.wantsPriorityOverSystemBehavior = YES;
+    }
+    [_keyCommands addObject:command];
+    command = [UIKeyCommand commandWithTitle: @"" image: nil action:@selector(handleKeyCommand:) input: keyName modifierFlags:UIKeyModifierAlternate propertyList:altEscapeSequence];
     if (@available(iOS 15, *)) {
         command.wantsPriorityOverSystemBehavior = YES;
     }
