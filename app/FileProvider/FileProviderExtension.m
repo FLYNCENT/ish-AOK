@@ -10,7 +10,6 @@
 #import "FileProviderEnumerator.h"
 #import "NSError+ISHErrno.h"
 #import "../AppGroup.h"
-#import "../ExceptionExfiltrator.h"
 #include "fs/fake-db.h"
 
 @interface FileProviderExtension () {
@@ -440,10 +439,6 @@
     [NSFileProviderManager writePlaceholderAtURL:[NSFileProviderManager placeholderURLForURL:url]
                                     withMetadata:item
                                            error:nil];
-}
-
-+ (void)load {
-    NSSetUncaughtExceptionHandler(iSHExceptionHandler);
 }
 
 @end
