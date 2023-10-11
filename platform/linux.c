@@ -18,7 +18,7 @@ static void read_proc_line(const char *file, const char *name, char *buf) {
     fclose(f);
 }
 
-struct cpu_usage get_total_cpu_usage() {
+struct cpu_usage get_total_cpu_usage(void) {
     struct cpu_usage usage = {};
     char buf[1234];
     read_proc_line("/proc/stat", "cpu", buf);
@@ -26,7 +26,7 @@ struct cpu_usage get_total_cpu_usage() {
     return usage;
 }
 
-struct mem_usage get_mem_usage() {
+struct mem_usage get_mem_usage(void) {
     struct mem_usage usage;
     char buf[1234];
 
@@ -42,7 +42,7 @@ struct mem_usage get_mem_usage() {
     return usage;
 }
 
-struct uptime_info get_uptime() {
+struct uptime_info get_uptime(void) {
     struct sysinfo info;
     sysinfo(&info);
     struct uptime_info uptime = {
@@ -54,7 +54,7 @@ struct uptime_info get_uptime() {
     return uptime;
 }
 
-int get_cpu_count() {
+int get_cpu_count(void) {
     return get_nprocs();
 }
 

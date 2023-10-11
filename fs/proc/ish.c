@@ -288,12 +288,12 @@ static int proc_ish_show_uidevice(struct proc_entry *UNUSED(entry), struct proc_
 }
 
 struct proc_children proc_ish_children = PROC_CHILDREN({
+    {"BAT0", .show = proc_ish_show_battery},
+    {"UIDevice", .show = proc_ish_show_uidevice},
     {"colors", .show = proc_ish_show_colors},
     {".defaults", S_IFDIR, .readdir = proc_ish_underlying_defaults_readdir},
     {"defaults", S_IFDIR, .readdir = proc_ish_defaults_readdir},
     {"documents", .show = proc_ish_show_documents},
     {"ips", .show = proc_ish_show_ips},
     {"version", .show = proc_ish_show_version},
-    {"BAT0", .show = proc_ish_show_battery},
-    {"UIDevice", .show = proc_ish_show_uidevice},
 });
