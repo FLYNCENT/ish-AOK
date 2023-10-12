@@ -43,12 +43,16 @@
 static void ios_handle_exit(struct task *task, int code) {
     // we are interested in init and in children of init
     // this is called with pids_lock as an implementation side effect, please do not cite as an example of good API design
+    complex_lockt(&pids_lock, 0, __FILE__, __LINE__);
     if(task->pid > MAX_PID) {// Corruption
         printk("ERROR: Insane PID in ios_handle_exit(%d)\n", task->pid);
+        unlock(&pids_lock);
         return;
     }
-    if (task->parent != NULL && task->parent->parent != NULL)
+    if (task->parent != NULL && task->parent->parent != NULL) {
+        unlock(&pids_lock);
         return;
+    }
     // pid should be saved now since task would be freed
     pid_t pid = task->pid;
  //   if(pids_lock.pid == pid)
@@ -56,6 +60,7 @@ static void ios_handle_exit(struct task *task, int code) {
 //    while((critical_region_count(task)) || (locks_held_count(task))) { // Wait for now, task is in one or more critical sections, and/or has locks
 //        nanosleep(&lock_pause, NULL);
 //    }
+    unlock(&pids_lock);
     dispatch_async(dispatch_get_main_queue(), ^{
         [[NSNotificationCenter defaultCenter] postNotificationName:ProcessExitedNotification
                                                             object:nil
@@ -276,7 +281,7 @@ void NetworkReachabilityCallback(SCNetworkReachabilityRef target, SCNetworkReach
         [UIView setAnimationsEnabled:NO];
 
 #if !ISH_LINUX
-    NSString *ishVersion = [NSString stringWithFormat:@"iSH %@ (%@)",
+    NSString *ishVersion = [NSString stringWithFormat:@"iSH-AOK %@ (%@)",
                          [NSBundle.mainBundle objectForInfoDictionaryKey:@"CFBundleShortVersionString"],
                          [NSBundle.mainBundle objectForInfoDictionaryKey:(NSString *) kCFBundleVersionKey]];
     extern const char *proc_ish_version;
@@ -324,10 +329,12 @@ void NetworkReachabilityCallback(SCNetworkReachabilityRef target, SCNetworkReach
   //      });
   //  }];
     
-    struct sockaddr_in6 address = {
-        .sin6_len = sizeof(address),
-        .sin6_family = AF_INET6,
+        // This code is IPv4 and IPv6 aware: see https://developer.apple.com/library/archive/samplecode/Reachability/Listings/ReadMe_md.html.
+    struct sockaddr_in address = {
+        .sin_len = sizeof(address),
+        .sin_family = AF_INET,
     };
+
     self.reachability = SCNetworkReachabilityCreateWithAddress(kCFAllocatorDefault, (struct sockaddr *) &address);
     SCNetworkReachabilityContext context = {
         .info = (__bridge void *) self,

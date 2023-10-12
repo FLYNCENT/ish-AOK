@@ -62,12 +62,6 @@ static int proc_show_cpuinfo(struct proc_entry *UNUSED(entry), struct proc_data 
     eax = 1;
     do_cpuid(&eax, &ebx, &ecx, &edx);
 
-    // static const char len[] = {
-    //     "fpu " "vme " "de " "pse " "tsc " "msr " "pae " "mce " "cx8 " "apic " "Reserved "
-    //     "sep " "mtrr " "pge " "mca " "cmov " "" "pse-36 " "psn " "clfsh " "Reserved "
-    //     "ds " "acpi " "mmx " "fxsr " "sse " "sse2 " "ss " "htt " "tm " "Reserved " "pbe "
-    // };
-
     char edx_flags[148] = { 0 };
     parse_edx_flags(edx, edx_flags);
 
@@ -109,8 +103,6 @@ static int proc_show_stat(struct proc_entry *UNUSED(entry), struct proc_data *bu
     int ncpus = get_cpu_count();
     struct cpu_usage total_usage = get_total_cpu_usage();
     struct cpu_usage* per_cpu_usage = 0;
-    struct uptime_info uptime_info = get_uptime();
-    unsigned uptime = uptime_info.uptime_ticks;
     
     proc_printf(buf, "cpu  %"PRIu64" %"PRIu64" %"PRIu64" %"PRIu64" 0 0 0 0\n", total_usage.user_ticks, total_usage.nice_ticks, total_usage.system_ticks, total_usage.idle_ticks);
     
@@ -121,14 +113,20 @@ static int proc_show_stat(struct proc_entry *UNUSED(entry), struct proc_data *bu
         }
         free(per_cpu_usage);
     }
+    proc_printf(buf, "intr 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0\n");
+    
     
     int blocked_task_count = get_count_of_blocked_tasks();
     int alive_task_count = get_count_of_alive_tasks();
     proc_printf(buf, "ctxt 0\n");
-    proc_printf(buf, "btime %u\n", uptime);
+    struct uptime_info btime = get_uptime();
+    struct timespec uptime_ts = {.tv_sec = btime.uptime_ticks / 100, .tv_nsec = btime.uptime_ticks % 100};
+    struct timespec boot_time = timespec_subtract(timespec_now(CLOCK_REALTIME), uptime_ts);
+    proc_printf(buf, "btime %ld\n", boot_time.tv_sec);
     proc_printf(buf, "processes %d\n", alive_task_count);
     proc_printf(buf, "procs_running %d\n", alive_task_count - blocked_task_count);
     proc_printf(buf, "procs_blocked %d\n", blocked_task_count);
+    proc_printf(buf, "softirq 0 0 0 0 0 0 0 0 0 0 0\n");
     
     return 0;
 }
@@ -145,7 +143,51 @@ static int proc_show_filesystems(struct proc_entry *UNUSED(entry), struct proc_d
 }
 
 static int proc_show_meminfo(struct proc_entry *UNUSED(entry), struct proc_data *buf) {
+/*
+Active(anon):       2508 kB
+Inactive(anon):    14628 kB
+Active(file):     395460 kB
+Inactive(file):   387664 kB
+Unevictable:           0 kB
+Mlocked:               0 kB
+SwapTotal:        524284 kB
+SwapFree:         515580 kB
+Dirty:              1260 kB
+Writeback:             0 kB
+AnonPages:         16408 kB
+KReclaimable:      49756 kB
+SReclaimable:      49756 kB
+SUnreclaim:        30112 kB
+KernelStack:        1456 kB
+PageTables:         1344 kB
+NFS_Unstable:          0 kB
+Bounce:                0 kB
+WritebackTmp:          0 kB
+CommitLimit:     1024300 kB
+Committed_AS:     119020 kB
+VmallocTotal:   34359738367 kB
+VmallocUsed:       25768 kB
+VmallocChunk:          0 kB
+Percpu:             1432 kB
+HardwareCorrupted:     0 kB
+AnonHugePages:      4096 kB
+ShmemHugePages:        0 kB
+ShmemPmdMapped:        0 kB
+FileHugePages:         0 kB
+FilePmdMapped:         0 kB
+HugePages_Total:       0
+HugePages_Free:        0
+HugePages_Rsvd:        0
+HugePages_Surp:        0
+Hugepagesize:       2048 kB
+Hugetlb:               0 kB
+DirectMap4k:      108392 kB
+DirectMap2M:      940032 kB
+DirectMap1G:           0 kB
+*/
     struct mem_usage usage = get_mem_usage();
+    show_kb(buf, "Buffers:        ", 0);
+    show_kb(buf, "Cached:         ", usage.cached);
     show_kb(buf, "MemTotal:       ", usage.total);
     show_kb(buf, "MemFree:        ", usage.free);
     show_kb(buf, "MemAvailable:   ", usage.available);
@@ -155,8 +197,6 @@ static int proc_show_meminfo(struct proc_entry *UNUSED(entry), struct proc_data 
     show_kb(buf, "SwapCached:     ", 0);
     // a bunch of crap busybox top needs to see or else it gets stack garbage
     show_kb(buf, "Shmem:          ", 0);
-    show_kb(buf, "Buffers:        ", 0);
-    show_kb(buf, "Cached:         ", usage.cached);
     show_kb(buf, "SwapTotal:      ", 0);
     show_kb(buf, "SwapFree:       ", 0);
     show_kb(buf, "Dirty:          ", 0);
@@ -173,8 +213,9 @@ static int proc_show_meminfo(struct proc_entry *UNUSED(entry), struct proc_data 
 
 static int proc_show_uptime(struct proc_entry *UNUSED(entry), struct proc_data *buf) {
     struct uptime_info uptime_info = get_uptime();
-    unsigned uptime = uptime_info.uptime_ticks;
-    proc_printf(buf, "%u.%u %u.%u\n", uptime / 100, uptime % 100, uptime / 100, uptime % 100);
+    unsigned long uptime = uptime_info.uptime_ticks;
+    
+    proc_printf(buf, "%lu.%lu %lu.%lu\n", uptime / 100, uptime % 100, uptime / 100, uptime % 100);
     return 0;
 }
 static int proc_show_vmstat(struct proc_entry *UNUSED(entry), struct proc_data *UNUSED(buf)) {
@@ -252,7 +293,7 @@ static int proc_show_mounts(struct proc_entry *UNUSED(entry), struct proc_data *
             proc_printf_comma(buf, &at_start, "nodev");
         if (mount->flags & MS_NOEXEC_)
             proc_printf_comma(buf, &at_start, "noexec");
-        if (strcmp(mount->info, "") != 0)
+        if (mount->info && mount->info[0] != '\0') // Ensure it's not NULL and not empty.
             proc_printf_comma(buf, &at_start, "%s", mount->info);
         proc_printf(buf, " 0 0\n");
     };
@@ -270,7 +311,7 @@ struct proc_dir_entry proc_root_entries[] = {
     {"mounts", .show = proc_show_mounts},
     {"net", S_IFDIR, .children = &proc_net_children},
     {"self", S_IFLNK, .readlink = proc_readlink_self},
-    {"stat", .show = &proc_show_stat},
+    {"stat", .show = proc_show_stat},
     {"sys", S_IFDIR, .children = &proc_sys_children},
     {"uptime", .show = proc_show_uptime},
     {"version", .show = proc_show_version},

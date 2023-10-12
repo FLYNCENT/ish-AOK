@@ -12,7 +12,7 @@ typedef double CFTimeInterval;
 extern bool doEnableMulticore;
 extern bool BOOTING; // Is iSH-AOK currently booting?  -mke
 
-struct cpu_usage get_total_cpu_usage() {
+struct cpu_usage get_total_cpu_usage(void) {
     host_cpu_load_info_data_t load;
     mach_msg_type_number_t fuck = HOST_CPU_LOAD_INFO_COUNT;
     host_statistics(mach_host_self(), HOST_CPU_LOAD_INFO, (host_info_t) &load, &fuck);
@@ -24,7 +24,7 @@ struct cpu_usage get_total_cpu_usage() {
     return usage;
 }
 
-struct mem_usage get_mem_usage() {
+struct mem_usage get_mem_usage(void) {
     host_basic_info_data_t basic = {};
     mach_msg_type_number_t fuck = HOST_BASIC_INFO_COUNT;
     kern_return_t status = host_info(mach_host_self(), HOST_BASIC_INFO, (host_info_t) &basic, &fuck);
@@ -47,8 +47,7 @@ struct mem_usage get_mem_usage() {
     return usage;
 }
 
-CFTimeInterval getSystemUptime(void)
-{
+CFTimeInterval getSystemUptime(void) {
     enum { NANOSECONDS_IN_SEC = 1000 * 1000 * 1000 };
     static double multiply = 0;
     if (multiply == 0)
@@ -64,7 +63,7 @@ CFTimeInterval getSystemUptime(void)
     return mach_continuous_time() * multiply;
 }
 
-struct uptime_info get_uptime() {
+struct uptime_info get_uptime(void) {
     uint64_t kern_boottime[2];
     size_t size = sizeof(kern_boottime);
     sysctlbyname("kern.boottime", &kern_boottime, &size, NULL, 0);
@@ -98,7 +97,7 @@ struct uptime_info get_uptime() {
     return uptime;
 }
 
-int get_cpu_count() {
+int get_cpu_count(void) {
      int ncpu;
      size_t size = sizeof(int);
      if((!doEnableMulticore) && (!BOOTING))

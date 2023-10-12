@@ -88,7 +88,7 @@ static struct task *construct_task(struct task *parent) {
     return task;
 }
 
-int become_first_process() {
+int become_first_process(void) {
     // now seems like a nice time
     establish_signal_handlers();
 
@@ -101,7 +101,7 @@ int become_first_process() {
     return 0;
 }
 
-int become_new_init_child() {
+int become_new_init_child(void) {
     // locking? who needs locking?!
     struct task *init = pid_get_task(1);
     assert(init != NULL);
